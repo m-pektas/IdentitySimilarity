@@ -76,6 +76,7 @@ identity vector : tensor([[ 0.1474, -0.6962,  0.2244,  ...,  0.5385,  0.2144,  0
 - [] Support different referance points for calculating similarity between two diffirent image batch.
 - [] Support r50 version of arcface.
 - [] Add cosine similarity as a similarity metric.
+- [] Add visual example into readme.
 
 ## Contributing
 
