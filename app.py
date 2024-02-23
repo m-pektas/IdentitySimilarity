@@ -4,13 +4,6 @@ from idsim.loss import IdentitySimilarity
 
 if __name__ == "__main__":
 
-    cfg = {"model": {
-        "name": "r100",
-        "device": "cuda",
-    },
-        "ref_points_path": None,
-        "criterion": "MSE"
-    }
  
     src = np.array([[35.066223, 34.23266],
                     [84.1586, 33.96113],
@@ -18,7 +11,7 @@ if __name__ == "__main__":
                     [39.60066, 90.89288],
                     [80.255, 90.66802]], dtype=np.float32)
 
-    IS = IdentitySimilarity(cfg)
+    IS = IdentitySimilarity()
     IS.set_ref_point(src)
 
     # dummy variables

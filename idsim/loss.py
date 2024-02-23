@@ -4,38 +4,33 @@ import numpy as np
 from kornia.geometry.transform import warp_affine
 from skimage import transform as trans 
 from .core import get_model
-from .utils.parser_util import dictToMunch
 import os
 import gdown
 
 
+#define root and links for models
+root = "/".join(os.path.abspath(__file__).split("/")[:-1])
+model_table = {
+            "r50" : [f"{root}/models/r50.pth","-"],
+            "r100": [f"{root}/models/glint360k_cosface_r100_fp16_01.pth",
+                    "https://drive.google.com/u/0/uc?id=13_xDly_05M0rBkoikaiaBJpaIh9NO4q6"]
+        }
+
 class IdentitySimilarity:
     
-    def __init__(self, cfg):
-
-        if isinstance(cfg, dict):
-            cfg = dictToMunch(cfg)
-
-        self.cfg                            = cfg
-        self.device                         = self.cfg.model.device
-        self.root = "/".join(os.path.abspath(__file__).split("/")[:-1])
-
+    def __init__(self, model_name : str = "r100", device: str = "cuda", ref_points_path: str = None, criterion: str = "MSE"):
+        self.device = device
         self.check_models()
-        self.criterion                      = self.__init_criterion()
-        self.arcface                        = self.__init_arcface()
+        self.criterion = self.__init_criterion(criterion)
+        self.arcface  = self.__init_arcface(model_name)
         self.src, self.dst, self.dest_size  = self.__init_src_dst_points()
         self.__init_translation_matrix()
-
-
-    
+   
     def check_models(self):
-        self.model_paths = {
-            "r50" : [f"{self.root}/models/r50.pth","-"],
-            "r100": [f"{self.root}/models/glint360k_cosface_r100_fp16_01.pth",
-                     "https://drive.google.com/u/0/uc?id=13_xDly_05M0rBkoikaiaBJpaIh9NO4q6"]
-        }
-        
-        for k, p in self.model_paths.items():
+        """
+        Download models if not exists
+        """
+        for k, p in model_table.items():
             if os.path.exists(p[0]):
                 print(f"{k} : ok!")
             else:
@@ -45,42 +40,41 @@ class IdentitySimilarity:
                 print(f"{k} : downloading ...")
                 gdown.download(p[1],p[0])
         
-
-    def __init_criterion(self):
-        
-        if self.cfg.criterion is not  None:
-
-            if self.cfg.criterion == "MSE":
+    def __init_criterion(self, criterion: str = "MSE"):
+        """
+        Initialize criterion metric
+        """
+        if criterion is not  None:
+            if criterion == "MSE":
                 criterion = torch.nn.MSELoss()
             else:
                 raise Exception("Unsupported criterion metric !!!!")
         else:
             raise Exception("Criterion metric cannot be None !!!!")
 
-
         return criterion
         
-    def __init_arcface(self):
-
-        name = self.cfg.model.name
-        path = self.model_paths[name]
-
-        net = get_model(name, fp16=True)
+    def __init_arcface(self, model_name: str = "r100"):
+        path = model_table.get(model_name)
+        if path is None:
+            raise Exception("Model not found !!!!")
+        
+        net = get_model(model_name, fp16=True)
         net.load_state_dict(torch.load(path[0]))
         net.eval()
         net.to(self.device)
         return net
-
     
-    def __init_src_dst_points(self):
+    def __init_src_dst_points(self, ref_points_path: str = None):
         dst = np.array([[30.2946,51.6963],
                     [65.5318,51.5014],
                     [48.0252,71.7366],
                     [33.5493,92.3655],
                     [62.7299,92.2041]], dtype=np.float32)
+        print("dst points : ", dst.shape)
 
-        if self.cfg.ref_points_path is not None:
-            src = np.load(self.cfg.ref_points_path)
+        if ref_points_path is not None:
+            src = np.load(ref_points_path)
         else:
             src = None
 
@@ -103,12 +97,12 @@ class IdentitySimilarity:
         similarity_transform = trans.SimilarityTransform()
         similarity_transform.estimate(ref_points, self.dst)
         M = torch.tensor(similarity_transform.params[0:2, :])
-        M = M.to(self.device )
+        M = M.to(self.device)
         return M
     
-
     def extract_identity(self, im, ref_points):
-        M = self.get_translation_matrix(ref_points)
+        print("ref_points : ", ref_points)
+        M = self.get_translation_matrix(ref_points.astype(np.float32))
         M = M.unsqueeze(0).repeat(im.size(0),1,1).float()
         im_align = warp_affine(im.to(self.device).float(), 
                                M,
