@@ -59,6 +59,7 @@ print("Similarity :", sim)
 
 ## TODOs
 - [] Support r50 version of arcface.
+- [] Add simple training example to proofing differentiability.
 
 ## Contributing
 
