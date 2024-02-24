@@ -1,82 +1,64 @@
 # Identity Similarity
 
 This repository can helps researchers that want to use face recognition in their researches. You can easly implement current(August 2022) sota face recognition in your project. I motivated for this repository from 
-[LPIPS](https://github.com/richzhang/PerceptualSimilarity).
-
-Models borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
+[LPIPS](https://github.com/richzhang/PerceptualSimilarity). Models borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
 
 **Warning :** Please, be careful when chosing your criterion. Lower is more similar in MSE while higher is more similar in CosineSimilarity.
 
-## Params
 
-- **model**
-    - **name**   : model name. it takes r50 and r100 values. Now, r100 supported only.
-    - **device** : target device. it takes cuda and cpu variables.
-- **ref_points_path** : aligned 5 landmark template. It takes ref. points numpy file path or None.
-- **criterion** : Similarity metric. Now, only supported MSE.
+<img src="docs/similarity_distance_figure.png" >
 
-## Example
+## Usage
 
-```
+### 1. Training with preprocessed dataset.
+
+In this case, we assume that you have aligned images using a keypoint template and you want to calculate identity similarity between two aligned images or a image and a saved identity vector.
+```python
+
 import torch
+import numpy as np
 from idsim.loss import IdentitySimilarity
 
-if __name__ == "__main__":
+idsim = IdentitySimilarity()
+src = np.array([[35.066223, 34.23266],
+                  [84.1586, 33.96113],
+                  [59.768444, 62.152763],
+                  [39.60066, 90.89288],
+                  [80.255, 90.66802]], dtype=np.float32)
+idsim.set_ref_point(src)
 
-    cfg = {"model": {
-        "name": "r100",
-        "device": "cuda",
-    },
-        "ref_points_path": None,
-        "criterion": "MSE"
-    }
- 
-    src = np.array([[35.066223, 34.23266],
-                    [84.1586, 33.96113],
-                    [59.768444, 62.152763],
-                    [39.60066, 90.89288],
-                    [80.255, 90.66802]], dtype=np.float32)
+# dummy variables
+v1 = torch.rand(1, 512)
+im1 = torch.rand(5, 3, 128, 128)
 
-    IS = IdentitySimilarity(cfg)
-    IS.set_ref_point(src)
-
-    # dummy variables
-    v1 = torch.rand(1, 512)
-    v2 = torch.rand(1, 512)
-    im1 = torch.rand(5, 3, 128, 128)
-    im2 = torch.rand(5, 3, 128, 128)
-
-    # useful functions
-    sim_v2v = IS.forward_v2v(v1, v2)
-    sim_im2im = IS.forward_img2img(im1, im2)
-    sim_v2im = IS.forward_v2img(v1, im1)
-    print("\nsim_v2v :", sim_v2v,
-          "\nsim_im2im :", sim_im2im,
-          "\nsim_v2im :", sim_v2im)
-
-    identity = IS.extract_identity(im2, src)
-    print("identity vector :", identity)
+# useful functions
+sim_v2v = idsim.forward_v2v(v1, v1)
+sim_im2im = idsim.forward_img2img(im1, im1)
+sim_v2im = idsim.forward_v2img(v1, im1)
+print("\nsim_v2v :", sim_v2v, "\nsim_im2im :", sim_im2im, "\nsim_v2im :", sim_v2im)
 ```
+
+
+### 2. Face recognition 
+
+In this case, Idsim can caculate identity similarity of your images.
+
+```python
+import cv2
+from idsim.loss import IdentitySimilarity
+
+idsim = IdentitySimilarity(criterion="Cosine")
+img1 = cv2.imread("new_profile.jpg")
+img2 = cv2.imread("new_profile.jpg")
+v1 = idsim.extract_identity(img1) 
+v2 = idsim.extract_identity(img2)
+sim = idsim.forward_v2v(v1,v2)
+print("Similarity :", sim)
 ```
-# Output
-sim_v2v : tensor(0.1647, device='cuda:0') 
-sim_im2im : tensor(0.0332, device='cuda:0', grad_fn=<MseLossBackward0>) 
-sim_v2im : tensor(0.4590, device='cuda:0', grad_fn=<MseLossBackward0>)
-identity vector : tensor([[ 0.1474, -0.6962,  0.2244,  ...,  0.5385,  0.2144,  0.4057],
-        [ 0.2828, -0.7189, -0.1680,  ...,  0.7966,  0.2238,  0.4943],
-        [ 0.1210, -1.0216, -0.0179,  ...,  0.8538,  0.2481,  0.5686],
-        [ 0.1712, -0.5780, -0.0307,  ...,  0.7353,  0.2200,  0.3596],
-        [-0.0011, -0.5154,  0.3020,  ...,  0.7727,  0.1472,  0.3377]],
-       device='cuda:0', grad_fn=<NativeBatchNormBackward0>)
-```
+
 
 ## TODOs
-
-- [] Extract identities with different referance points for each image in batch.
-- [] Support different referance points for calculating similarity between two diffirent image batch.
 - [] Support r50 version of arcface.
-- [] Add cosine similarity as a similarity metric.
-- [] Add visual example into readme.
 
 ## Contributing
 

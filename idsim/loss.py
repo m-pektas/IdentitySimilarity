@@ -6,39 +6,39 @@ from skimage import transform as trans
 from .core import get_model
 import os
 import gdown
-
+from idsim.detector import FastMtCnnClient
+import torchvision.transforms as transforms
 
 #define root and links for models
 root = "/".join(os.path.abspath(__file__).split("/")[:-1])
 model_table = {
-            "r50" : [f"{root}/models/r50.pth","-"],
+            "r50" : [f"{root}/models/ms1mv3_arcface_r50_fp16.pth","-"],
             "r100": [f"{root}/models/glint360k_cosface_r100_fp16_01.pth",
                     "https://drive.google.com/u/0/uc?id=13_xDly_05M0rBkoikaiaBJpaIh9NO4q6"]
         }
 
+
 class IdentitySimilarity:
     
-    def __init__(self, model_name : str = "r100", device: str = "cuda", ref_points_path: str = None, criterion: str = "MSE"):
+    def __init__(self, model_name : str = "r100", device: str = "cuda", criterion: str = "MSE"):
         self.device = device
-        self.check_models()
+        self.check_models(model_name)
         self.criterion = self.__init_criterion(criterion)
         self.arcface  = self.__init_arcface(model_name)
         self.src, self.dst, self.dest_size  = self.__init_src_dst_points()
         self.__init_translation_matrix()
+        self.detector = FastMtCnnClient()
    
-    def check_models(self):
+    def check_models(self, model_name):
         """
         Download models if not exists
         """
-        for k, p in model_table.items():
-            if os.path.exists(p[0]):
-                print(f"{k} : ok!")
-            else:
-                
-                if k=="r50": continue
-                
-                print(f"{k} : downloading ...")
-                gdown.download(p[1],p[0])
+        p = model_table.get(model_name)
+        if os.path.exists(p[0]):
+            print(f"{model_name} : ok!")
+        else: 
+            print(f"{model_name} : downloading ...")
+            gdown.download(p[1],p[0])
         
     def __init_criterion(self, criterion: str = "MSE"):
         """
@@ -47,6 +47,10 @@ class IdentitySimilarity:
         if criterion is not  None:
             if criterion == "MSE":
                 criterion = torch.nn.MSELoss()
+            elif criterion == "L1":
+                criterion = torch.nn.L1Loss()
+            elif criterion == "Cosine":
+                criterion = torch.nn.CosineSimilarity()
             else:
                 raise Exception("Unsupported criterion metric !!!!")
         else:
@@ -100,13 +104,28 @@ class IdentitySimilarity:
         M = M.to(self.device)
         return M
     
-    def extract_identity(self, im, ref_points):
-        print("ref_points : ", ref_points)
-        M = self.get_translation_matrix(ref_points.astype(np.float32))
-        M = M.unsqueeze(0).repeat(im.size(0),1,1).float()
-        im_align = warp_affine(im.to(self.device).float(), 
-                               M,
-                               dsize=(112,112))
+    def extract_identity(self, image, ref_points = None):
+        """
+        This function extracts identity from an image. 
+        The image can be aligned or not aligned.
+        If the image is not aligned, the ref point predicted by the detector.
+        If the image is aligned, the ref point is used to align the image.
+        """
+        
+        if ref_points is None: # not aligned image
+            assert isinstance(image, np.ndarray), "image must be numpy array"
+            result = self.detector.detect_faces(image)
+            image = transforms.ToTensor()(image).unsqueeze(0).to(self.device)
+            M = self.get_translation_matrix(result[0].keypoints.astype(np.float32))
+           
+        else:
+            M = self.get_translation_matrix(ref_points.astype(np.float32))
+       
+        M = M.unsqueeze(0).repeat(image.size(0),1,1).float()
+        im_align = warp_affine(image.to(self.device).float(), 
+                            M,
+                            dsize=(112,112))
+        
         im_id = self.arcface(im_align)
         return im_id
 
@@ -125,7 +144,6 @@ class IdentitySimilarity:
     def forward_img2img(self, im1, im2):
         
         M = self.M.unsqueeze(0).repeat(im1.size(0),1,1).float()
-        
         im1_align = warp_affine(im1.to(self.device).float(), M, dsize=(112,112))
         im2_align = warp_affine(im2.to(self.device).float(), M, dsize=(112,112))
         im1_id = self.arcface(im1_align)
