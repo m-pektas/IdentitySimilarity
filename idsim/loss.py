@@ -64,7 +64,7 @@ class IdentitySimilarity:
             raise Exception("Model not found !!!!")
         
         net = get_model(model_name, fp16=fp16)
-        net.load_state_dict(torch.load(path[0]))
+        net.load_state_dict(torch.load(path[0], map_location=self.device))
         net.eval()
         net.to(self.device)
         return net
