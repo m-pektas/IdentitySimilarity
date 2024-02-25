@@ -4,3 +4,4 @@ opencv-python
 kornia==0.6.4
 scikit-image==0.19.2
 pytest
+coverage
