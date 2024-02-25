@@ -17,7 +17,7 @@ In this case, we assume that you have aligned images using a keypoint template a
 
 import torch
 import numpy as np
-from idsim.loss import IdentitySimilarity
+from idsim import IdentitySimilarity
 
 idsim = IdentitySimilarity()
 src = np.array([[35.066223, 34.23266],
@@ -45,7 +45,7 @@ In this case, Idsim can caculate identity similarity of your images.
 
 ```python
 import cv2
-from idsim.loss import IdentitySimilarity
+from idsim import IdentitySimilarity
 
 idsim = IdentitySimilarity(criterion="Cosine")
 img1 = cv2.imread("new_profile.jpg")
@@ -58,7 +58,6 @@ print("Similarity :", sim)
 
 
 ## TODOs
-- [] Support r50 version of arcface.
 - [] Add simple training example to proofing differentiability.
 
 ## Contributing

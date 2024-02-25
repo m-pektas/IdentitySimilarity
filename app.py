@@ -1,9 +1,9 @@
 import cv2
-from idsim.loss import IdentitySimilarity
+from idsim import IdentitySimilarity
 from tqdm import tqdm
 
-idsim = IdentitySimilarity(model_name="r100", criterion="Cosine")
-img1 = cv2.imread("a.jpg")
+idsim = IdentitySimilarity(model_name="r50", criterion="Cosine")
+img1 = cv2.imread("b.jpg")
 img2 = cv2.imread("a.jpg")
 v1 = idsim.extract_identity(img1) 
 v2 = idsim.extract_identity(img2)

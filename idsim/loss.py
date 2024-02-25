@@ -12,12 +12,10 @@ import torchvision.transforms as transforms
 #define root and links for models
 root = "/".join(os.path.abspath(__file__).split("/")[:-1])
 model_table = {
-            "r50" : [f"{root}/models/ms1mv3_arcface_r50_fp16.pth","-"],
+            "r50" : [f"{root}/models/ms1mv3_arcface_r50_fp16.pth","https://drive.google.com/uc?id=1bjqIK6hONZaX0JO2fx1vaVGOauMgixO3"],
             "r100": [f"{root}/models/glint360k_cosface_r100_fp16_01.pth",
-                    "https://drive.google.com/u/0/uc?id=13_xDly_05M0rBkoikaiaBJpaIh9NO4q6"]
+                    "https://drive.google.com/uc?id=13_xDly_05M0rBkoikaiaBJpaIh9NO4q6"]
         }
-
-
 class IdentitySimilarity:
     
     def __init__(self, model_name : str = "r100", device: str = "cuda", criterion: str = "MSE"):
@@ -33,6 +31,9 @@ class IdentitySimilarity:
         """
         Download models if not exists
         """
+        if not os.path.exists(root + "/models"):
+            os.makedirs(root + "/models", exist_ok=True)
+            
         p = model_table.get(model_name)
         if os.path.exists(p[0]):
             print(f"{model_name} : ok!")
@@ -75,7 +76,6 @@ class IdentitySimilarity:
                     [48.0252,71.7366],
                     [33.5493,92.3655],
                     [62.7299,92.2041]], dtype=np.float32)
-        print("dst points : ", dst.shape)
 
         if ref_points_path is not None:
             src = np.load(ref_points_path)
@@ -111,6 +111,8 @@ class IdentitySimilarity:
         If the image is not aligned, the ref point predicted by the detector.
         If the image is aligned, the ref point is used to align the image.
         """
+        if image is None:
+            raise Exception("image cannot be None")
         
         if ref_points is None: # not aligned image
             assert isinstance(image, np.ndarray), "image must be numpy array"
