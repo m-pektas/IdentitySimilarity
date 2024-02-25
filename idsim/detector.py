@@ -5,6 +5,7 @@ import numpy as np
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
 
+
 class FacialAreaRegion:
     x: int
     y: int
@@ -22,7 +23,7 @@ class FacialAreaRegion:
         h: int,
         left_eye: Optional[Tuple[int, int]] = None,
         right_eye: Optional[Tuple[int, int]] = None,
-        keypoints  = None,
+        keypoints=None,
         confidence: Optional[float] = None,
     ):
         self.x = x
@@ -34,10 +35,12 @@ class FacialAreaRegion:
         self.keypoints = keypoints
         self.confidence = confidence
 
-class FastMtCnnClient():
+
+class FastMtCnnClient:
     def __init__(self):
         self.model = self.build_model()
-    def detect_faces(self, img: np.ndarray) :
+
+    def detect_faces(self, img: np.ndarray):
         """
         Detect and align face with mtcnn
 
@@ -49,12 +52,13 @@ class FastMtCnnClient():
         """
         resp = []
 
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # mtcnn expects RGB but OpenCV read BGR
+        img_rgb = cv2.cvtColor(
+            img, cv2.COLOR_BGR2RGB
+        )  # mtcnn expects RGB but OpenCV read BGR
         detections = self.model.detect(
             img_rgb, landmarks=True
         )  # returns boundingbox, prob, landmark
         if detections is not None and len(detections) > 0:
-
             for current_detection in zip(*detections):
                 x, y, w, h = xyxy_to_xywh(current_detection[0])
                 confidence = current_detection[1]
@@ -108,6 +112,3 @@ def xyxy_to_xywh(xyxy: Union[list, tuple]) -> list:
     w = xyxy[2] - x + 1
     h = xyxy[3] - y + 1
     return [x, y, w, h]
-
-
-
