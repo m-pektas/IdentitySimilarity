@@ -28,7 +28,7 @@ class IdentitySimilarity:
         model_name: str = "r50",
         device: str = "cuda",
         criterion: str = "MSE",
-        fp16: bool = True,
+        fp16: bool = False
     ):
         self.device = device
         self.check_models(model_name)
