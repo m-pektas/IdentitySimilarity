@@ -102,7 +102,11 @@ class IdentitySimilarity:
         M = torch.tensor(similarity_transform.params[0:2, :])
         M = M.to(self.device)
         return M
-    
+
+    def extract_keypoints(self, image):
+         result = self.detector.detect_faces(image)
+         return result[0].keypoints.astype(np.float32)
+
     def extract_identity(self, image, ref_points = None):
         """
         This function extracts identity from an image. 

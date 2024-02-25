@@ -56,9 +56,8 @@ sim = idsim.forward_v2v(v1,v2)
 print("Similarity :", sim)
 ```
 
+**Note:** You can chec the [proving_differentiability.ipynb](proving_differentiability.ipynb) for an example training.
 
-## TODOs
-- [] Add simple training example to proofing differentiability.
 
 ## Contributing
 
