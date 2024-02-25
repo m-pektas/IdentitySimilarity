@@ -1,6 +1,6 @@
 # Identity Similarity
 
-This repository can helps researchers that want to use face recognition in their researches. You can easly implement current(August 2022) sota face recognition in your project. I motivated for this repository from 
+This repository can helps researchers that want to use face recognition in their researches. You can easly implement powerfull face recognition in your project. I motivated for this repository from 
 [LPIPS](https://github.com/richzhang/PerceptualSimilarity). The models are borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
 
 **Warning :** Please, be careful when chosing your criterion. Lower is more similar in MSE while higher is more similar in CosineSimilarity.
