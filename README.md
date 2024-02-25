@@ -20,12 +20,12 @@ import numpy as np
 from idsim import IdentitySimilarity
 
 idsim = IdentitySimilarity()
-src = np.array([[35.066223, 34.23266],
+template = np.array([[35.066223, 34.23266],
                   [84.1586, 33.96113],
                   [59.768444, 62.152763],
                   [39.60066, 90.89288],
                   [80.255, 90.66802]], dtype=np.float32)
-idsim.set_ref_point(src)
+idsim.set_ref_point(template)
 
 # dummy variables
 v1 = torch.rand(1, 512)
