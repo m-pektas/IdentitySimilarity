@@ -58,6 +58,9 @@ print("Similarity :", sim)
 
 **Note:** You can check the [proving_differentiability.ipynb](proving_differentiability.ipynb) for an example training.
 
+## Todo
+
+- [] Release pypi package
 
 ## Contributing
 
