@@ -1,7 +1,7 @@
 # Identity Similarity
 
 This repository can helps researchers that want to use face recognition in their researches. You can easly implement current(August 2022) sota face recognition in your project. I motivated for this repository from 
-[LPIPS](https://github.com/richzhang/PerceptualSimilarity). Models borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
+[LPIPS](https://github.com/richzhang/PerceptualSimilarity). The models are borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
 
 **Warning :** Please, be careful when chosing your criterion. Lower is more similar in MSE while higher is more similar in CosineSimilarity.
 
@@ -48,15 +48,15 @@ import cv2
 from idsim import IdentitySimilarity
 
 idsim = IdentitySimilarity(criterion="Cosine")
-img1 = cv2.imread("new_profile.jpg")
-img2 = cv2.imread("new_profile.jpg")
+img1 = cv2.imread("a.jpg")
+img2 = cv2.imread("b.jpg")
 v1 = idsim.extract_identity(img1) 
 v2 = idsim.extract_identity(img2)
 sim = idsim.forward_v2v(v1,v2)
 print("Similarity :", sim)
 ```
 
-**Note:** You can chec the [proving_differentiability.ipynb](proving_differentiability.ipynb) for an example training.
+**Note:** You can check the [proving_differentiability.ipynb](proving_differentiability.ipynb) for an example training.
 
 
 ## Contributing
