@@ -1,4 +1,3 @@
-from genericpath import exists
 import torch
 import numpy as np
 from kornia.geometry.transform import warp_affine
@@ -18,7 +17,7 @@ model_table = {
         }
 class IdentitySimilarity:
     
-    def __init__(self, model_name : str = "r100", device: str = "cuda", criterion: str = "MSE"):
+    def __init__(self, model_name : str = "r50", device: str = "cuda", criterion: str = "MSE"):
         self.device = device
         self.check_models(model_name)
         self.criterion = self.__init_criterion(criterion)

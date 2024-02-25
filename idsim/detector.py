@@ -1,7 +1,6 @@
-from typing import Any, Union, List
+from typing import Any, Union, Tuple, Optional
 import cv2
 import numpy as np
-from typing import List, Tuple, Optional
 
 # Link -> https://github.com/timesler/facenet-pytorch
 # Examples https://www.kaggle.com/timesler/guide-to-mtcnn-in-facenet-pytorch
