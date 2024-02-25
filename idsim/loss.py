@@ -17,11 +17,11 @@ model_table = {
         }
 class IdentitySimilarity:
     
-    def __init__(self, model_name : str = "r50", device: str = "cuda", criterion: str = "MSE"):
+    def __init__(self, model_name : str = "r50", device: str = "cuda", criterion: str = "MSE", fp16: bool = True):
         self.device = device
         self.check_models(model_name)
         self.criterion = self.__init_criterion(criterion)
-        self.arcface  = self.__init_arcface(model_name)
+        self.arcface  = self.__init_arcface(model_name, fp16)
         self.src, self.dst, self.dest_size  = self.__init_src_dst_points()
         self.__init_translation_matrix()
         self.detector = FastMtCnnClient()
@@ -58,12 +58,12 @@ class IdentitySimilarity:
 
         return criterion
         
-    def __init_arcface(self, model_name: str = "r100"):
+    def __init_arcface(self, model_name: str = "r100", fp16: bool = True):
         path = model_table.get(model_name)
         if path is None:
             raise Exception("Model not found !!!!")
         
-        net = get_model(model_name, fp16=True)
+        net = get_model(model_name, fp16=fp16)
         net.load_state_dict(torch.load(path[0]))
         net.eval()
         net.to(self.device)

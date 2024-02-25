@@ -4,7 +4,7 @@ from idsim import IdentitySimilarity
 
 class TestInference:
 
-    idsim = IdentitySimilarity(device="cpu")
+    idsim = IdentitySimilarity(device="cpu", fp16=False, criterion="MSE")
     vector_a = torch.rand(1, 512)
     vector_b = torch.rand(1, 512)
     image_a = torch.rand(5, 3, 128, 128)
