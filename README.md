@@ -1,12 +1,21 @@
 # Identity Similarity
 
-This repository can helps researchers that want to use face recognition in their researches. You can easly implement powerfull face recognition in your project. I motivated for this repository from 
-[LPIPS](https://github.com/richzhang/PerceptualSimilarity). The models are borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
+This repository can help researchers who want to use face recognition in their research You can easily implement powerful face recognition models in your project. I motivated by 
+[LPIPS](https://github.com/richzhang/PerceptualSimilarity) for this repository. The models are borrowed from [Insigtface](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch).
 
 **Warning :** Please, be careful when chosing your criterion. Lower is more similar in MSE while higher is more similar in CosineSimilarity.
 
 
 <img src="docs/similarity_distance_figure.png" >
+
+## Supported Metrics
+- MSE
+- L1
+- Cosine
+
+## Supported Models
+- ms1mv3_arcface_r50
+- glint360k_cosface_r100
 
 ## Usage
 
